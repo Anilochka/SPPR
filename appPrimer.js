@@ -15,14 +15,13 @@ continueButton.addEventListener("click", () => {
         element.innerHTML =
             `<b>${name}</b><br>
              <label>
-                <input id="${inputName}" type="text" value="${inputName}">
+                <input id="${inputName}" type="text">
              </label>`;
         form1.appendChild(element);
     }
 
     const form2 = document.createElement("form");
     form2.id = "coefficientsForm";
-    const values = [0.3, 0.3, 0.4];
     for (let i = 0; i < pCount; i++) {
         const element = document.createElement("p");
         const name = "Коэффициент " + (i + 1) + ":";
@@ -30,7 +29,7 @@ continueButton.addEventListener("click", () => {
         element.innerHTML =
             `<b>${name}</b><br>
              <label>
-                <input id="${inputName}" type="text" value="${values[i]}">
+                <input id="${inputName}" type="text"">
              </label>`;
         form2.appendChild(element);
     }
@@ -44,7 +43,7 @@ continueButton.addEventListener("click", () => {
         element.innerHTML =
             `<b>${name}</b><br>
              <label>
-                <input id="${inputName}" type="text" value="${inputName}">
+                <input id="${inputName}" type="text">
              </label>`;
         form3.appendChild(element);
     }
@@ -83,12 +82,6 @@ function continue1(paramsCount, variantsCount) {
     }
     main.innerHTML = "";
 
-    const pref = [
-        [143000, 150000, 148000],
-        [2008, 2009, 2009],
-        [170000, 140000, 150000]
-    ];
-
     const table = document.createElement("table");
     table.id = "prefsForm";
     const thead = document.createElement("thead");
@@ -115,7 +108,7 @@ function continue1(paramsCount, variantsCount) {
             const inputName = "pref" + i + j;
             element.innerHTML = element.innerHTML.concat(
                 `<label>
-                    <input id="${inputName}" type="text" size="40" value="${pref[i][j]}">
+                    <input id="${inputName}" type="text" size="40">
                 </label>`
             );
             tr.appendChild(element);
@@ -150,7 +143,11 @@ function continue2(paramsCount, variantsCount, params, coeffs, vars) {
     document.getElementById("continue3").style.display = "none";
     let prefsMatrix = [paramsCount];
     for (let i = 0; i < paramsCount; i++) {
-        prefsMatrix[i] = 0;
+        let row = [variantsCount];
+        for (let j = 0; j < variantsCount; j++) {
+            row[j] = 0;
+        }
+        prefsMatrix[i] = row;
     }
     let rating = [variantsCount];
     let ratingBlock = [variantsCount];
@@ -197,7 +194,7 @@ function continue2(paramsCount, variantsCount, params, coeffs, vars) {
             }
             Dom_data[i] = tmp;
         }
-        build_matrix(prefsMatrix[k], prep_bm[k], Dom_data);
+        build_matrix(prefsMatrix[k], prep_bm[k], Dom_data, paramsCount);
 
         for (let i = 0; i < paramsCount; i++) {
             res +="\n";
@@ -344,10 +341,10 @@ function continue2(paramsCount, variantsCount, params, coeffs, vars) {
     main.appendChild(bestResult);
 }
 
-function build_matrix(vars, greater, matrix) {
+function build_matrix(vars, greater, matrix, paramsCount) {
     for (let i = 0; i < vars.length; ++i ) {
-        for (let j = 0; j < vars.length; ++j) {
-            if ( i === j ) {
+        for (let j = 0; j < paramsCount.length; ++j) {
+            if (i === j) {
                 matrix[i][j] = -1;
                 continue;
             }
@@ -393,7 +390,7 @@ function block(arr, n, m) {
         for (let j = 0; j < m; j++) {
             if (i === j)
                 continue;
-            if (arr[j][i] !== 0) {
+            if (arr[i][j] !== 0) {
                 block_str = false;
                 break;
             }

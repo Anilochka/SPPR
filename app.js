@@ -148,7 +148,7 @@ function continue1() {
 
 function continue2(params, coeffs, vars) {
     document.getElementById("continue3").style.display = "none";
-    let prefsMatrix = new Array(pref).fill().map(() =>
+    let prefsMatrix = new Array(prefCount).fill().map(() =>
         new Array(varCount).fill(0));
     let rating = new Array(varCount).fill(0);
     let ratingBlock = new Array(varCount).fill(0);
@@ -157,15 +157,15 @@ function continue2(params, coeffs, vars) {
     let kopt = new Array(varCount).fill(0);
 
     for (let i = 0; i < prefCount; i++) {
-        const prefs = [varCount];
+        let prefs = [varCount];
         for (let j = 0; j < varCount; j++) {
             prefs[j] = document.getElementById("pref" + i + j).value;
         }
         prefsMatrix[i] = prefs;
     }
-    const prep_bm = [prefCount];
+    let prep_bm = [prefCount];
     for (let i = 0; i < prefCount; i++) {
-        const elements = document.getElementsByName("minmax-" + i);
+        let elements = document.getElementsByName("minmax-" + i);
         for (const el of elements) {
             if (el.checked)
                 prep_bm[i] = el.value === "max";
@@ -207,20 +207,20 @@ function continue2(params, coeffs, vars) {
         const block_Array = block(Dom_data, varCount, varCount);
         const turnir_Array = turnir(Dom_data, coeffs, varCount, varCount, k);
         res += "\nДоминирующий механизм\n";
-        for (let i = 0; i < dom_Array.length; i++) {
+        for (let i = 0; i < dom_Array.length; ++i) {
             res += dom_Array[i];
             res += "\n";
             rating[dom_Array[i]] += +coeffs[k];
         }
         res += "\nБлокирующий механизм\n";
-        for (let i = 0; i < block_Array.length; i++) {
+        for (let i = 0; i < block_Array.length; ++i) {
             res += block_Array[i];
             res += "\n";
             ratingBlock[block_Array[i]] += +coeffs[k];
         }
 
         res += "\nТурнирный механизм\n";
-        for (let i = 0; i < turnir_Array.length; i++) {
+        for (let i = 0; i < turnir_Array.length; ++i) {
             res += turnir_Array[i];
             res += "\n";
             ratingTurnir[i] += +turnir_Array[i];
@@ -244,21 +244,21 @@ function continue2(params, coeffs, vars) {
     placeRating(rating, rating_place);
     res += "\n_____Механизм доминирования_____";
     res += "\nБаллы вариантов с учетом весовых коэффициентов и места вариантов\n";
-    for (let i = 0; i < varCount; i++) {
+    for (let i = 0; i < varCount; ++i) {
         res += vars[i] + " \t " + rating[i] + " \t " + rating_place[i] + "\n";
     }
     const rating_place_block = [varCount];
     placeRating(ratingBlock, rating_place_block);
     res += "\n_____Механизм блокировки______";
     res += "\nБаллы вариантов с учетом весовых коэффициентов и места вариантов\n";
-    for (let i = 0; i < varCount; i++) {
+    for (let i = 0; i < varCount; ++i) {
         res += vars[i] + " \t " + ratingBlock[i] + " \t " + rating_place_block[i] + "\n";
     }
     const rating_place_turnir = [varCount];
     placeRating(ratingTurnir, rating_place_turnir);
     res += "\n______Турнирный механизм______";
     res += "\nБаллы вариантов с учетом весовых коэффициентов и места вариантов\n";
-    for (let i = 0; i < varCount; i++) {
+    for (let i = 0; i < varCount; ++i) {
         res += vars[i] + " \t " + ratingTurnir[i] + " \t " + rating_place_turnir[i] + "\n";
     }
     const rating_place_kmax = [varCount];
@@ -267,7 +267,7 @@ function continue2(params, coeffs, vars) {
     placeRating(kopt, rating_place_kopt);
     res += "\n______Механизм K-MAX______";
     res += "\nБаллы вариантов с учетом весовых коэффициентов и места вариантов\n";
-    for (let i = 0; i < varCount; i++) {
+    for (let i = 0; i < varCount; ++i) {
         res += vars[i] + " \t " + rating_place_kmax[i] + " \t " + kopt[i] + " \t " + rating_place_kopt[i] + "\n";
     }
     res += "\n______Бальная система______";
@@ -275,11 +275,26 @@ function continue2(params, coeffs, vars) {
     res += "\n================================================================= ==============";
     res += "\n || Блок || Дом || Тур || Sjp || SjM || Сумма баллов ||";
     res += "\n================================================================= ==============\n";
-
+    let winner = varCount + 1 - +rating_place[0] + varCount + 1 - +rating_place_block[0] +
+        varCount + 1 - +rating_place_turnir[0] + varCount + 1 - +rating_place_kmax[0] + varCount + 1
+        - +rating_place_kopt[0];
+    let index = 0;
+    for (let i = 1; i < varCount; ++i) {
+        let dom_value = varCount + 1 - +rating_place[i];
+        let block_value = varCount + 1 - +rating_place_block[i];
+        let turn_value = varCount + 1 - +rating_place_turnir[i];
+        let kmax_value = varCount + 1 - +rating_place_kmax[i];
+        let kopt_value = varCount + 1 - +rating_place_kopt[i];
+        let sum = +dom_value + +block_value + +turn_value + +kmax_value + +kopt_value;
+        if (winner < sum) {
+            winner = sum;
+            index = i;
+        }
+    }
     let maxSum = -1;
     let bestVar = -1;
     const sums = [varCount];
-    for (let i = 0; i < varCount; i++) {
+    for (let i = 0; i < varCount; ++i) {
         let dom_value = varCount + 1 - +rating_place[i];
         let block_value = varCount + 1 - +rating_place_block[i];
         let turn_value = varCount + 1 - +rating_place_turnir[i];
@@ -341,8 +356,8 @@ function getFinalTable(vars, sums, element) {
 }
 
 function build_matrix(vars, greater, matrix) {
-    for (let i = 0; i < vars.length; i++) {
-        for (let j = 0; j < vars.length; j++) {
+    for (let i = 0; i < vars.length; ++i) {
+        for (let j = 0; j < vars.length; ++j) {
             if (i === j) {
                 matrix[i][j] = -1;
                 continue;
@@ -419,7 +434,7 @@ function turnir(arr, power, n, m, number) {
 }
 
 function createKarray(arr, n, m) {
-    const A = new Array(m).fill().map(() =>
+    let A = new Array(m).fill().map(() =>
         new Array(4).fill(0));
 
     for (let i = 0; i < n; i++) {
@@ -496,7 +511,7 @@ function placeRating(arr, A) {
     let place = [varCount];
 
     let number = [varCount];
-    for (let i = 0; i < varCount; i++) {
+    for (let i = 0; i < varCount; ++i) {
         number[i] = +(i + 1);
     }
     for (let i = 0; i < varCount; i++) {
@@ -506,7 +521,7 @@ function placeRating(arr, A) {
     place.reverse();
 
     let pl = 0;
-    for (let i = 0; i < varCount; i++) {
+    for (let i = 0; i < varCount; ++i) {
         if ((place[i] === place[i - 1]) && (i !== 0)) {
             continue;
         }

@@ -147,7 +147,7 @@ function continue1() {
 }
 
 function continue2(params, coeffs, vars) {
-    document.getElementById("continue3").style.display = "none";
+    //document.getElementById("continue3").style.display = "none";
     let prefsMatrix = new Array(prefCount).fill().map(() =>
         new Array(varCount).fill(0));
     let rating = new Array(varCount).fill(0);
@@ -157,11 +157,9 @@ function continue2(params, coeffs, vars) {
     let kopt = new Array(varCount).fill(0);
 
     for (let i = 0; i < prefCount; i++) {
-        let prefs = [varCount];
         for (let j = 0; j < varCount; j++) {
-            prefs[j] = document.getElementById("pref" + i + j).value;
+            prefsMatrix[i][j] = parseInt(document.getElementById("pref" + i + j).value);
         }
-        prefsMatrix[i] = prefs;
     }
     let prep_bm = [prefCount];
     for (let i = 0; i < prefCount; i++) {

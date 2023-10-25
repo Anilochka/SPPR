@@ -1,60 +1,61 @@
 const continueButton = document.getElementById("continue");
 const main = document.getElementById("mainPage");
 
-const pref = [
+const PREF_DEFAULT = [
     [143000, 150000, 148000],
     [2008, 2009, 2009],
     [170000, 140000, 150000]
 ];
-const values = [0.3, 0.3, 0.4];
-let res = "";
-let prefCount = 0;
-let varCount = 0;
+const VALUES_DEFAULT = [0.3, 0.3, 0.4];
+let RES = "";
+let PREF_COUNT = 0;
+let VAR_COUNT = 0;
+const STRING_DELIMITER = "\n";
 
 continueButton.addEventListener("click", () => {
-    prefCount = parseInt(document.getElementById("prefsCount").value);
-    varCount = parseInt(document.getElementById("variantsCount").value);
+    PREF_COUNT = parseInt(document.getElementById("prefsCount").value);
+    VAR_COUNT = parseInt(document.getElementById("variantsCount").value);
     main.innerHTML = "";
     const paramsCountForm = document.createElement("form");
     paramsCountForm.id = "parametersForm";
 
-    for (let i = 0; i < prefCount; i++) {
+    for (let i = 0; i < PREF_COUNT; i++) {
         const element = document.createElement("p");
         const name = "Предпочтение " + (i + 1) + ":";
-        const inputName = "param" + i;
+        const id = "param" + i;
         element.innerHTML =
             `<b>${name}</b><br>
              <label>
-                <input id="${inputName}" type="text" value="${inputName}">
+                <input id="${id}" type="text" value="${id}">
              </label>`;
         paramsCountForm.appendChild(element);
     }
 
     const coefficientsForm = document.createElement("form");
     coefficientsForm.id = "coefficientsForm";
-    for (let i = 0; i < prefCount; i++) {
+    for (let i = 0; i < PREF_COUNT; i++) {
         const element = document.createElement("p");
         const name = "Коэффициент " + (i + 1) + ":";
-        const inputName = "coefficient" + i;
-        const value = prefCount === 3 ? values[i] : " ";
+        const id = "coefficient" + i;
+        const value = PREF_COUNT === 3 ? VALUES_DEFAULT[i] : " ";
         element.innerHTML =
             `<b>${name}</b><br>
              <label>
-                <input id="${inputName}" type="text" value="${value}">
+                <input id="${id}" type="text" value="${value}">
              </label>`;
         coefficientsForm.appendChild(element);
     }
 
     const variantsForm = document.createElement("form");
     variantsForm.id = "variantsForm";
-    for (let i = 0; i < varCount; i++) {
+    for (let i = 0; i < VAR_COUNT; i++) {
         const element = document.createElement("p");
         const name = "Вариант " + (i + 1) + ":";
-        const inputName = "variant" + i;
+        const id = "variant" + i;
         element.innerHTML =
             `<b>${name}</b><br>
              <label>
-                <input id="${inputName}" type="text" value="${inputName}">
+                <input id="${id}" type="text" value="${id}">
              </label>`;
         variantsForm.appendChild(element);
     }
@@ -75,19 +76,19 @@ continueButton.addEventListener("click", () => {
 })
 
 function continue1() {
-    const prefs = [prefCount];
-    const coeffs = [prefCount];
-    const vars = [varCount];
-    for (let i = 0; i < prefCount; i++) {
-        let inputName = "param" + i;
-        prefs[i] = document.getElementById(inputName).value;
-        inputName = "coefficient" + i;
-        coeffs[i] = parseFloat(document.getElementById(inputName).value.replaceAll(",", "."));
+    const prefs = [PREF_COUNT];
+    const coeffs = [PREF_COUNT];
+    const vars = [VAR_COUNT];
+    for (let i = 0; i < PREF_COUNT; i++) {
+        let id = "param" + i;
+        prefs[i] = document.getElementById(id).value;
+        id = "coefficient" + i;
+        coeffs[i] = parseFloat(document.getElementById(id).value.replaceAll(",", "."));
     }
 
-    for (let i = 0; i < varCount; i++) {
-        let inputName = "variant" + i;
-        vars[i] = document.getElementById(inputName).value;
+    for (let i = 0; i < VAR_COUNT; i++) {
+        let id = "variant" + i;
+        vars[i] = document.getElementById(id).value;
     }
     main.innerHTML = "";
 
@@ -96,7 +97,7 @@ function continue1() {
     const thead = document.createElement("thead");
     const tr = document.createElement("tr");
     tr.innerHTML = `<th>Варианты</th>`;
-    for (let i = 0; i < varCount; i++) {
+    for (let i = 0; i < VAR_COUNT; i++) {
         tr.innerHTML = tr.innerHTML.concat(
             `<th>${vars[i]}</th>`
         );
@@ -106,19 +107,19 @@ function continue1() {
     table.appendChild(thead);
 
     const tbody = document.createElement("tbody");
-    for (let i = 0; i < prefCount; i++) {
+    for (let i = 0; i < PREF_COUNT; i++) {
         const tr = document.createElement("tr");
         tr.id = "subform" + i;
-        for (let j = 0; j < varCount; j++) {
+        for (let j = 0; j < VAR_COUNT; j++) {
             if (j === 0) {
                 tr.innerHTML = `<th>${prefs[i]}</th>`;
             }
             const element = document.createElement("td");
-            const inputName = "pref" + i + j;
-            const value = (prefCount === 3 && varCount === 3) ? pref[i][j] : " ";
+            const id = "PREF_DEFAULT" + i + j;
+            const value = (PREF_COUNT === 3 && VAR_COUNT === 3) ? PREF_DEFAULT[i][j] : " ";
             element.innerHTML = element.innerHTML.concat(
                 `<label>
-                    <input id="${inputName}" type="text" size="40" value="${value}">
+                    <input id="${id}" type="text" size="40" value="${value}">
                 </label>`
             );
             tr.appendChild(element);
@@ -148,21 +149,21 @@ function continue1() {
 
 function continue2(params, coeffs, vars) {
     //document.getElementById("continue3").style.display = "none";
-    let prefsMatrix = new Array(prefCount).fill().map(() =>
-        new Array(varCount).fill(0));
-    let rating = new Array(varCount).fill(0);
-    let ratingBlock = new Array(varCount).fill(0);
-    let ratingTurnir = new Array(varCount).fill(0);
-    let kmax = new Array(varCount).fill(0);
-    let kopt = new Array(varCount).fill(0);
+    let prefsMatrix = new Array(PREF_COUNT).fill().map(() =>
+        new Array(VAR_COUNT).fill(0));
+    let rating = new Array(VAR_COUNT).fill(0);
+    let ratingBlock = new Array(VAR_COUNT).fill(0);
+    let ratingTurnir = new Array(VAR_COUNT).fill(0);
+    let kmax = new Array(VAR_COUNT).fill(0);
+    let kopt = new Array(VAR_COUNT).fill(0);
 
-    for (let i = 0; i < prefCount; i++) {
-        for (let j = 0; j < varCount; j++) {
-            prefsMatrix[i][j] = parseInt(document.getElementById("pref" + i + j).value);
+    for (let i = 0; i < PREF_COUNT; i++) {
+        for (let j = 0; j < VAR_COUNT; j++) {
+            prefsMatrix[i][j] = parseInt(document.getElementById("PREF_DEFAULT" + i + j).value);
         }
     }
-    let prep_bm = [prefCount];
-    for (let i = 0; i < prefCount; i++) {
+    let prep_bm = [PREF_COUNT];
+    for (let i = 0; i < PREF_COUNT; i++) {
         let elements = document.getElementsByName("minmax-" + i);
         for (const el of elements) {
             if (el.checked)
@@ -170,67 +171,67 @@ function continue2(params, coeffs, vars) {
         }
     }
 
-    res += "Предпочтения:\n";
-    for (let i = 0; i < prefCount; i++) {
-        res += params[i] + ": " + coeffs[i] + "\n";
+    RES += "Предпочтения:" + STRING_DELIMITER;
+    for (let i = 0; i < PREF_COUNT; i++) {
+        RES += params[i] + ": " + coeffs[i] + STRING_DELIMITER;
     }
-    for (let k = 0; k < prefCount; k++) {
-        res += "\n<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n";
-        res += params[k];
+    for (let k = 0; k < PREF_COUNT; k++) {
+        RES += STRING_DELIMITER + "<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>" + STRING_DELIMITER;
+        RES += params[k];
 
-        const Dom_data = new Array(varCount).fill().map(() =>
-            new Array(varCount).fill(0));
+        const Dom_data = new Array(VAR_COUNT).fill().map(() =>
+            new Array(VAR_COUNT).fill(0));
 
-        build_matrix(prefsMatrix[k], prep_bm[k], Dom_data);
+        buildMatrix(prefsMatrix[k], prep_bm[k], Dom_data);
 
-        for (let i = 0; i < varCount; i++) {
-            res += "\n";
-            for (let j = 0; j < varCount; j++) {
-                res += Dom_data[i][j] + "\t";
+        for (let i = 0; i < VAR_COUNT; i++) {
+            RES += STRING_DELIMITER;
+            for (let j = 0; j < VAR_COUNT; j++) {
+                RES += Dom_data[i][j] + "\t";
             }
         }
 
-        let kopt_Array = new Array(varCount).fill(-1);
-        let Karray = createKarray(Dom_data, varCount, varCount);
-        createKopt(Karray, varCount, kopt_Array);
-        res += "\nKopt";
-        for (let i = 0; i < varCount; i++) {
-            res += "\n[" + i + "] = " + kopt_Array[i];
+        let koptArray = new Array(VAR_COUNT).fill(-1);
+        let Karray = createKarray(Dom_data, VAR_COUNT, VAR_COUNT);
+        createKopt(Karray, VAR_COUNT, koptArray);
+        RES += STRING_DELIMITER + "Kopt";
+        for (let i = 0; i < VAR_COUNT; i++) {
+            RES += STRING_DELIMITER + "[" + i + "] = " + koptArray[i];
         }
-        res += "\n+++++++";
-        res += "\nK-max механизм\n";
-        writeArrKopt(Karray, varCount, 4, kopt_Array);
-        res += "\n======== ";
-        const dom_Array = dominate(Dom_data, varCount, varCount);
-        const block_Array = block(Dom_data, varCount, varCount);
-        const turnir_Array = turnir(Dom_data, coeffs, varCount, varCount, k);
-        res += "\nДоминирующий механизм\n";
-        for (let i = 0; i < dom_Array.length; ++i) {
-            res += dom_Array[i];
-            res += "\n";
+        RES += STRING_DELIMITER + "+++++++";
+        RES += STRING_DELIMITER + "K-max механизм" + STRING_DELIMITER;
+        writeArrKopt(Karray, VAR_COUNT, 4, koptArray);
+        RES += STRING_DELIMITER + "======== ";
+        const dom_Array = dominate(Dom_data, VAR_COUNT, VAR_COUNT);
+        const block_Array = block(Dom_data, VAR_COUNT, VAR_COUNT);
+        const turnir_Array = turnir(Dom_data, coeffs, VAR_COUNT, VAR_COUNT, k);
+        RES += STRING_DELIMITER + "Доминирующий механизм" + STRING_DELIMITER;
+        for (let i = 0; i < dom_Array.length; i++) {
+            RES += dom_Array[i];
+            RES += STRING_DELIMITER;
             rating[dom_Array[i]] += +coeffs[k];
         }
-        res += "\nБлокирующий механизм\n";
-        for (let i = 0; i < block_Array.length; ++i) {
-            res += block_Array[i];
-            res += "\n";
+        RES += STRING_DELIMITER + "Блокирующий механизм" + STRING_DELIMITER;
+        for (let i = 0; i < block_Array.length; i++) {
+            RES += block_Array[i];
+            RES += STRING_DELIMITER;
             ratingBlock[block_Array[i]] += +coeffs[k];
         }
 
-        res += "\nТурнирный механизм\n";
-        for (let i = 0; i < turnir_Array.length; ++i) {
-            res += turnir_Array[i];
-            res += "\n";
+        RES += STRING_DELIMITER + "Турнирный механизм" + STRING_DELIMITER;
+        for (let i = 0; i < turnir_Array.length; i++) {
+            RES += turnir_Array[i];
+            RES += STRING_DELIMITER;
             ratingTurnir[i] += +turnir_Array[i];
         }
 
-        for (let i = 0; i < varCount; i++) {
+        for (let i = 0; i < VAR_COUNT; i++) {
             for (let j = 0; j < 4; j++) {
                 kmax[i] += +Karray[i][j] * +coeffs[k];
             }
         }
-        for (let i = 0; i < varCount; i++) {
-            if ((kopt_Array[i] === 1) || (kopt_Array[i] === 2) || (kopt_Array[i] === 3) || (kopt_Array[i] === 4)) {
+        for (let i = 0; i < VAR_COUNT; i++) {
+            if ((koptArray[i] === 1) || (koptArray[i] === 2) || (koptArray[i] === 3) || (koptArray[i] === 4)) {
                 for (let j = 0; j < 4; j++) {
                     kopt[i] += +Karray[i][j] * +coeffs[k];
                 }
@@ -238,70 +239,56 @@ function continue2(params, coeffs, vars) {
         }
     }
 
-    const rating_place = [varCount];
+    const rating_place = [VAR_COUNT];
     placeRating(rating, rating_place);
-    res += "\n_____Механизм доминирования_____";
-    res += "\nБаллы вариантов с учетом весовых коэффициентов и места вариантов\n";
-    for (let i = 0; i < varCount; ++i) {
-        res += vars[i] + " \t " + rating[i] + " \t " + rating_place[i] + "\n";
+    RES += STRING_DELIMITER + "_____Механизм доминирования_____";
+    RES += STRING_DELIMITER + "Баллы вариантов с учетом весовых коэффициентов и места вариантов" + STRING_DELIMITER;
+    for (let i = 0; i < VAR_COUNT; i++) {
+        RES += vars[i] + " \t " + rating[i] + " \t " + rating_place[i] + STRING_DELIMITER;
     }
-    const rating_place_block = [varCount];
+    const rating_place_block = [VAR_COUNT];
     placeRating(ratingBlock, rating_place_block);
-    res += "\n_____Механизм блокировки______";
-    res += "\nБаллы вариантов с учетом весовых коэффициентов и места вариантов\n";
-    for (let i = 0; i < varCount; ++i) {
-        res += vars[i] + " \t " + ratingBlock[i] + " \t " + rating_place_block[i] + "\n";
+    RES += STRING_DELIMITER + "_____Механизм блокировки______";
+    RES += STRING_DELIMITER + "Баллы вариантов с учетом весовых коэффициентов и места вариантов" + STRING_DELIMITER;
+    for (let i = 0; i < VAR_COUNT; i++) {
+        RES += vars[i] + " \t " + ratingBlock[i] + " \t " + rating_place_block[i] + STRING_DELIMITER;
     }
-    const rating_place_turnir = [varCount];
+    const rating_place_turnir = [VAR_COUNT];
     placeRating(ratingTurnir, rating_place_turnir);
-    res += "\n______Турнирный механизм______";
-    res += "\nБаллы вариантов с учетом весовых коэффициентов и места вариантов\n";
-    for (let i = 0; i < varCount; ++i) {
-        res += vars[i] + " \t " + ratingTurnir[i] + " \t " + rating_place_turnir[i] + "\n";
+    RES += STRING_DELIMITER + "______Турнирный механизм______";
+    RES += STRING_DELIMITER + "Баллы вариантов с учетом весовых коэффициентов и места вариантов" + STRING_DELIMITER;
+    for (let i = 0; i < VAR_COUNT; i++) {
+        RES += vars[i] + " \t " + ratingTurnir[i] + " \t " + rating_place_turnir[i] + STRING_DELIMITER;
     }
-    const rating_place_kmax = [varCount];
-    const rating_place_kopt = [varCount];
+    const rating_place_kmax = [VAR_COUNT];
+    const rating_place_kopt = [VAR_COUNT];
     placeRating(kmax, rating_place_kmax);
     placeRating(kopt, rating_place_kopt);
-    res += "\n______Механизм K-MAX______";
-    res += "\nБаллы вариантов с учетом весовых коэффициентов и места вариантов\n";
-    for (let i = 0; i < varCount; ++i) {
-        res += vars[i] + " \t " + rating_place_kmax[i] + " \t " + kopt[i] + " \t " + rating_place_kopt[i] + "\n";
+    RES += STRING_DELIMITER + "______Механизм K-MAX______";
+    RES += STRING_DELIMITER + "Баллы вариантов с учетом весовых коэффициентов и места вариантов" + STRING_DELIMITER;
+    for (let i = 0; i < VAR_COUNT; i++) {
+        RES += vars[i] + " " + rating_place_kmax[i] + " " + kopt[i] + " " + rating_place_kopt[i] + STRING_DELIMITER;
     }
-    res += "\n______Бальная система______";
+    RES += STRING_DELIMITER + "______Бальная система______";
 
-    res += "\n================================================================= ==============";
-    res += "\n || Блок || Дом || Тур || Sjp || SjM || Сумма баллов ||";
-    res += "\n================================================================= ==============\n";
-    let winner = varCount + 1 - +rating_place[0] + varCount + 1 - +rating_place_block[0] +
-        varCount + 1 - +rating_place_turnir[0] + varCount + 1 - +rating_place_kmax[0] + varCount + 1
-        - +rating_place_kopt[0];
-    let index = 0;
-    for (let i = 1; i < varCount; ++i) {
-        let dom_value = varCount + 1 - +rating_place[i];
-        let block_value = varCount + 1 - +rating_place_block[i];
-        let turn_value = varCount + 1 - +rating_place_turnir[i];
-        let kmax_value = varCount + 1 - +rating_place_kmax[i];
-        let kopt_value = varCount + 1 - +rating_place_kopt[i];
-        let sum = +dom_value + +block_value + +turn_value + +kmax_value + +kopt_value;
-        if (winner < sum) {
-            winner = sum;
-            index = i;
-        }
-    }
+    RES += STRING_DELIMITER + "================================================================= ==============";
+    RES += STRING_DELIMITER + " || Блок || Дом || Тур || Sjp || SjM || Сумма баллов ||";
+    RES += STRING_DELIMITER + "================================================================= =============="
+        + STRING_DELIMITER;
+
     let maxSum = -1;
     let bestVar = -1;
-    const sums = [varCount];
-    for (let i = 0; i < varCount; ++i) {
-        let dom_value = varCount + 1 - +rating_place[i];
-        let block_value = varCount + 1 - +rating_place_block[i];
-        let turn_value = varCount + 1 - +rating_place_turnir[i];
-        let kmax_value = varCount + 1 - +rating_place_kmax[i];
-        let kopt_value = varCount + 1 - +rating_place_kopt[i];
+    const sums = [VAR_COUNT];
+    for (let i = 0; i < VAR_COUNT; i++) {
+        let dom_value = VAR_COUNT + 1 - +rating_place[i];
+        let block_value = VAR_COUNT + 1 - +rating_place_block[i];
+        let turn_value = VAR_COUNT + 1 - +rating_place_turnir[i];
+        let kmax_value = VAR_COUNT + 1 - +rating_place_kmax[i];
+        let kopt_value = VAR_COUNT + 1 - +rating_place_kopt[i];
         let sum = +dom_value + +block_value + +turn_value + +kmax_value + +kopt_value;
         sums[i] = sum;
-        res += "\n" + vars[i] + " \t " + block_value + " \t " + dom_value + " \t " + turn_value + " \t " + kmax_value
-            + " \t " + kopt_value + " \t " + sum;
+        RES += STRING_DELIMITER + vars[i] + " " + block_value + " " + dom_value + " " + turn_value + " " + kmax_value
+            + " " + kopt_value + " " + sum;
         if (sum > maxSum) {
             maxSum = sum;
             bestVar = i;
@@ -317,15 +304,15 @@ function continue2(params, coeffs, vars) {
     showMore.addEventListener("click", () => {
         document.getElementById("showMore").style.display = "none";
         const resElement = document.createElement("div");
-        resElement.innerText = res;
+        resElement.innerText = RES;
         main.appendChild(resElement);
     });
-    getFinalTable(vars, sums, bestResult);
+    createAndAddFinalTable(vars, sums, bestResult);
     bestResult.appendChild(showMore);
     main.appendChild(bestResult);
 }
 
-function getFinalTable(vars, sums, element) {
+function createAndAddFinalTable(vars, sums, element) {
     const table = document.createElement("table");
     table.id = "finalResults";
     const thead = document.createElement("thead");
@@ -337,14 +324,14 @@ function getFinalTable(vars, sums, element) {
     table.appendChild(thead);
 
     const tbody = document.createElement("tbody");
-    for (let i = 0; i < varCount; i++) {
+    for (let i = 0; i < VAR_COUNT; i++) {
         const tr = document.createElement("tr");
         tr.id = "row" + i;
         tr.innerHTML = `<th>${vars[i]}</th>`;
         let element = document.createElement("td");
-        let inputName = "sum" + i;
+        let id = "sum" + i;
         element.innerHTML = element.innerHTML.concat(
-            `<p id="${inputName}">${sums[i]}</p>`
+            `<p id="${id}">${sums[i]}</p>`
         );
         tr.appendChild(element);
         tbody.appendChild(tr);
@@ -353,18 +340,18 @@ function getFinalTable(vars, sums, element) {
     element.appendChild(table);
 }
 
-function build_matrix(vars, greater, matrix) {
-    for (let i = 0; i < vars.length; ++i) {
-        for (let j = 0; j < vars.length; ++j) {
+function buildMatrix(vars, isGreater, matrix) {
+    for (let i = 0; i < vars.length; i++) {
+        for (let j = 0; j < vars.length; j++) {
             if (i === j) {
                 matrix[i][j] = -1;
                 continue;
             }
-            if (!greater && vars[i] <= vars[j]) {
+            if (!isGreater && vars[i] <= vars[j]) {
                 matrix[i][j] = 1;
                 continue;
             }
-            if (greater && vars[i] >= vars[j]) {
+            if (isGreater && vars[i] >= vars[j]) {
                 matrix[i][j] = 1;
             }
         }
@@ -372,43 +359,45 @@ function build_matrix(vars, greater, matrix) {
 }
 
 function dominate(arr, n, m) {
-    let dom_str_Array = [];
-    let dom_str;
+    let tmpArray = [];
+    let isSuitable;
     for (let i = 0; i < n; i++) {
-        dom_str = true;
+        isSuitable = true;
         for (let j = 0; j < m; j++) {
-            if (i === j)
+            if (i === j) {
                 continue;
+            }
             if (arr[i][j] !== 1) {
-                dom_str = false;
+                isSuitable = false;
                 break;
             }
         }
-        if (dom_str) {
-            dom_str_Array.push(i);
+        if (isSuitable) {
+            tmpArray.push(i);
         }
     }
-    return dom_str_Array;
+    return tmpArray;
 }
 
 function block(arr, n, m) {
-    let tmp = [];
-    let block_str;
+    let tmpArray = [];
+    let isSuitable;
     for (let i = 0; i < n; i++) {
-        block_str = true;
+        isSuitable = true;
         for (let j = 0; j < m; j++) {
-            if (i === j)
+            if (i === j) {
                 continue;
+            }
             if (arr[j][i] !== 0) {
-                block_str = false;
+                isSuitable = false;
                 break;
             }
         }
-        if (block_str) {
-            tmp.push(i);
+        if (isSuitable) {
+            tmpArray.push(i);
         }
     }
-    return tmp;
+    return tmpArray;
 }
 
 function turnir(arr, power, n, m, number) {
@@ -416,14 +405,13 @@ function turnir(arr, power, n, m, number) {
     for (let i = 0; i < n; i++) {
         let sum = 0.0;
         for (let j = 0; j < m; j++) {
-            if (i === j)
+            if (i === j) {
                 continue;
-            if (arr[i][j] === 1) {
-                if (arr[j][i] === 0) {
-                    sum += +power[number];
-                } else if (arr[j][i] === 1) {
-                    sum += +(power[number] / 2);
-                }
+            }
+            if (arr[i][j] === 1 && arr[j][i] === 0) {
+                sum += +power[number];
+            } else if (arr[i][j] === 1 && arr[j][i] === 1) {
+                sum += +(power[number] / 2);
             }
         }
         tmp.push(sum);
@@ -440,14 +428,14 @@ function createKarray(arr, n, m) {
         let ER = 0;
         let NK = 0;
         for (let j = 0; j < m; j++) {
-            if (i === j)
+            if (i === j) {
                 continue;
+            }
             if (arr[i][j] === 1 && arr[j][i] === 0) {
                 HR0 += 1;
             } else if (arr[i][j] === 1 && arr[j][i] === 1) {
                 ER += 1;
-            }
-            if (arr[i][j] === -1) {
+            } else if (arr[i][j] === -1) {
                 NK += 1;
             }
         }
@@ -473,32 +461,32 @@ function createKarray(arr, n, m) {
     return A;
 }
 
-function createKopt(arr, n, kopt_Array) {
+function createKopt(arr, n, koptArray) {
     for (let i = 0; i < n; i++) {
         for (let j = 0; j < 4; j++) {
             switch (j) {
                 case 0:
                     if (arr[i][j] === n) {
-                        kopt_Array[i] = 1;
+                        koptArray[i] = 1;
                     }
                     break;
                 case 1:
-                    if ((arr[i][j] === (n - 1)) && (arr[i][j] > arr[i][j + 2])) {
-                        kopt_Array[i] = 2;
+                    if (arr[i][j] === (n - 1) && arr[i][j] > arr[i][j + 2]) {
+                        koptArray[i] = 2;
                     }
                     break;
                 case 2:
-                    if ((arr[i][j] === n) && (arr[i][j] > arr[i][j + 1])) {
-                        kopt_Array[i] = 3;
+                    if (arr[i][j] === n && arr[i][j] > arr[i][j + 1]) {
+                        koptArray[i] = 3;
                     }
                     break;
                 case 3:
-                    if ((arr[i][j] === (n - 1)) && (arr[i][j] === arr[i][j - 1]) && (arr[i][j] === arr[i][j - 2])) {
-                        kopt_Array[i] = 4;
+                    if (arr[i][j] === (n - 1) && arr[i][j] === arr[i][j - 1] && arr[i][j] === arr[i][j - 2]) {
+                        koptArray[i] = 4;
                     }
                     break;
                 default:
-                    kopt_Array[i] = 0;
+                    koptArray[i] = 0;
                     break;
             }
         }
@@ -506,57 +494,58 @@ function createKopt(arr, n, kopt_Array) {
 }
 
 function placeRating(arr, A) {
-    let place = [varCount];
+    let place = [VAR_COUNT];
 
-    let number = [varCount];
-    for (let i = 0; i < varCount; ++i) {
+    let number = [VAR_COUNT];
+    for (let i = 0; i < VAR_COUNT; i++) {
         number[i] = +(i + 1);
     }
-    for (let i = 0; i < varCount; i++) {
+    for (let i = 0; i < VAR_COUNT; i++) {
         place[i] = +arr[i];
     }
     place.sort();
     place.reverse();
 
     let pl = 0;
-    for (let i = 0; i < varCount; ++i) {
+    for (let i = 0; i < VAR_COUNT; i++) {
         if ((place[i] === place[i - 1]) && (i !== 0)) {
             continue;
         }
-        for (let j = 0; j < varCount; j++) {
+        for (let j = 0; j < VAR_COUNT; j++) {
             if (arr[j] === place[i]) {
                 A[j] = number[pl];
             }
         }
         pl++;
-        if (place[i] === 0)
+        if (place[i] === 0) {
             break;
+        }
     }
 }
 
 function writeArrKopt(arr, n, m, opt) {
     for (let i = 0; i < n; i++) {
         for (let j = 0; j < m; j++) {
-            res += +arr[i][j] + "\t";
+            RES += +arr[i][j] + " ";
         }
         switch (opt[i]) {
             case 0:
                 break;
             case 1:
-                res += "максимальный" + "\t";
+                RES += "максимальный";
                 break;
             case 2:
-                res += "строго максимальный" + "\t";
+                RES += "строго максимальный";
                 break;
             case 3:
-                res += "наибольший" + "\t";
+                RES += "наибольший";
                 break;
             case 4:
-                res += "строго наибольший" + "\t";
+                RES += "строго наибольший";
                 break;
             default:
                 break;
         }
-        res += "\n";
+        RES += STRING_DELIMITER;
     }
 }
